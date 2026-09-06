@@ -12,7 +12,7 @@ def analyze_cv(cv_text: str, job_description: str) -> dict:
     prompt = build_prompt(cv_text, job_description)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt,
     )
 
