@@ -65,3 +65,5 @@ CV-Analyzer/
 ## License
 
 MIT
+
+<video src="CV-Analyzer Demo.mp4" controls width="100%"></video>
