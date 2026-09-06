@@ -1,38 +1,30 @@
-import streamlit as st
-from parser import extract_text
-from analyzer import analyze_cv
+import os
+import json
+from google import genai
+from prompts import build_prompt
 
-st.set_page_config(page_title="CV Analyzer", page_icon="📄")
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-st.title("📄 CV Analyzer")
-st.caption("Check how well your CV matches a job description before you apply.")
 
-cv_file = st.file_uploader("Upload your CV (PDF or DOCX)", type=["pdf", "docx"])
-job_description = st.text_area("Paste the job description here", height=200)
+def analyze_cv(cv_text: str, job_description: str) -> dict:
+    """Sends the CV + job description to Gemini and returns a structured analysis."""
 
-if st.button("Analyze"):
-    if not cv_file or not job_description.strip():
-        st.warning("Please upload a CV and paste a job description.")
-    else:
-        with st.spinner("Analyzing your CV..."):
-            cv_text = extract_text(cv_file)
-            st.session_state["result"] = analyze_cv(cv_text, job_description)
+    prompt = build_prompt(cv_text, job_description)
 
-if "result" in st.session_state:
-    result = st.session_state["result"]
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=prompt,
+    )
 
-    st.subheader("Match Score")
-    st.progress(result["match_score"] / 100)
-    st.write(f"**{result['match_score']}/100**")
+    raw_text = response.text.strip()
+    raw_text = raw_text.replace("```json", "").replace("```", "").strip()
 
-    st.subheader("✅ Strengths")
-    for item in result["strengths"]:
-        st.markdown(f"- {item}")
-
-    st.subheader("🔍 Missing Keywords")
-    for item in result["missing_keywords"]:
-        st.markdown(f"- {item}")
-
-    st.subheader("💡 Suggestions")
-    for item in result["suggestions"]:
-        st.markdown(f"- {item}")
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        return {
+            "match_score": 0,
+            "missing_keywords": [],
+            "strengths": [],
+            "suggestions": ["Could not parse the AI response. Please try again."],
+        }
