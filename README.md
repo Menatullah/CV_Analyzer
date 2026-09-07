@@ -66,4 +66,4 @@ CV-Analyzer/
 
 MIT
 
-<video src="https://raw.githubusercontent.com/Menatullah/CV_Analyzer/39fa698d1722a9b73a5a46726231214c8a0f86f5/CV-Analyzer%20Demo.mp4" controls width="100%"></video>
+YOU CAN TRY IT YOURSELF : https://cvanalyzer-2ekgpvu5cc2ytedruyfqiy.streamlit.app/
